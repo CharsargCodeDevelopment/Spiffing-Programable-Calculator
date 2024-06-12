@@ -13,6 +13,7 @@ import adafruit_display_shapes as drawshapes
 import busio
 #import fourwire
 from adafruit_display_text import label
+from adafruit_display_text.scrolling_label import ScrollingLabel
 from adafruit_st7735r import ST7735R
 import Line as BLine
 import framebufferio
@@ -233,6 +234,9 @@ def RenderGraph(pos=(0,0),zoom = 1,last_points = []):
     Start = time()
     print(time()-totalStart)
     Data = RunGraph.ProscsessGraph(calculations,variables,H,W,XRange,YRange,pos = pos,res = 1,zoom=zoom)
+    if Data[0] == None:
+        print(Data[1])
+        return Data
     End = time()
     print(End-Start)
     #print(Data)
@@ -326,7 +330,31 @@ while True:
     for PROCESSES in __PROCESSESES__:
         #print(__PROCESSESES__)
         if PROCESSES == "RENDER GRAPH":
-            points,Line_Points = RenderGraph(pos=(j/2,0),zoom=1,last_points=last_points)
+            RenderGraphOutPut = RenderGraph(pos=(j/2,0),zoom=1,last_points=last_points)
+            if RenderGraphOutPut[0] != None:
+                points,Line_Points = RenderGraphOutPut
+            else:
+                print("ERROR:")
+                error = (RenderGraphOutPut)
+                error.pop(0)
+                print(error)
+                Error_Text = """
+ERROR!!!!
+CULPRIT EQUATION:
+{0}
+""".format(error[1])
+                #text_group = displayio.Group(scale=2, x=11, y=64)
+                #text = "Hello World!"
+                #text_area = label.Label(terminalio.FONT, text=text, color=0xFFFF00)
+                #text_group.append(text_area)  # Subgroup for text scaling
+                #image.append(text_group)
+                Error_Group = displayio.Group(scale=1, x=10, y=10)
+                Error = label.Label(terminalio.FONT, text=Error_Text, color=0xFF0000)
+                Error_Group.append(Error)
+                image.append(Error_Group)
+                
+                display.refresh()
+                #input()
         elif PROCESSES == "PLAY GRAPH":
             continue
             print('Starting Sound')

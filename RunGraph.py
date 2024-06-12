@@ -6,12 +6,16 @@ def RunCalculate(calculation,variables = {"x":5},functions = []):
     subsituted = calculation.split("=")[-1]
     for variable in variables:
         value = str(variables[variable])
-        subsituted = value.join(subsituted.split(variable))
+        try:
+            subsituted = value.join(subsituted.split(variable))
+        except ValueError as e:
+            return [None,e,calculation,None]
 
     #print(subsituted)
-
-    result = eval(subsituted)
-
+    try:
+        result = eval(subsituted)
+    except SyntaxError as e:
+        return [None,e,calculation,subsituted]
     if len(calculation.split("=")) == 2:
         subsituted = calculation.split("=")[0]+"="+subsituted
 
@@ -46,6 +50,9 @@ def ProscsessGraph(calculations,variables,H=600,W=600,XRange=10,YRange = 10,pos 
             x = x/res
             variables['x'] = (x*zoom)+pos[0]
             value = RunCalculate(calculation,variables)
+            if type(value) == type([]):
+                if value[0] == None:
+                    return value
             if len(calculation.split("=")) == 2:
                 if calculation.split("=")[0] == "y":
                     y=value+pos[1]
